@@ -67,15 +67,26 @@ const WINNING_POSITIONS = [
   [2, 4, 6],
 ];
 
-function calculateWinner(board: string[]): Player | undefined {
-  return WINNING_POSITIONS.map(([a, b,c]) => {
+function calculateWinner(board: string[]): string | null {
+  const winner = WINNING_POSITIONS.map(([a, b,c]) => {
     const first = board[a];
+
     if (first && first === board[b] && first === board[c]) {
       return first
     }
 
     return null;
   }).filter((v) => v)[0];
+
+  if (!winner) {
+    const toe = board.filter(v => v).length === board.length;
+
+    if (toe) {
+      return 'TOE';
+    }
+  }
+
+  return winner;
 }
 
 export const TicTacToe = () => {
@@ -87,7 +98,10 @@ export const TicTacToe = () => {
   const [winners, setWinners] = useState({
     X: 0,
     O: 0,
+    TOE: 0,
   });
+
+  const [lastWinner, setLastWinner] = useState('');
 
   const winnersRef = useRef(winners);
   winnersRef.current = winners;
@@ -116,6 +130,7 @@ export const TicTacToe = () => {
 
           if (winner) {
             winnersRef.current[winner] += 1;
+            setLastWinner(winner);
             setWinners(winners);
             setBoard(emptyBoard());
           } else {
@@ -126,10 +141,15 @@ export const TicTacToe = () => {
         }}
       />
 
+      {lastWinner && (
+        <View className="mt-10">
+        <Text className="text-2xl font-bold">Último vencedor: {lastWinner}</Text>
+      </View>)}
+
       <View className="mt-10">
-        <Text className="text-2xl font-bold">Placar</Text>
+        <Text className="text-2xl font-bold mb-3">Placar</Text>
         {Object.keys(winners).map((w) => (
-          <Text key={w} className="text-2xl font-bold">
+          <Text key={w} className="text-2xl font-semibold">
             {w}: {winners[w]}
           </Text>
         ))}
